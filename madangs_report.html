@@ -1,0 +1,721 @@
+﻿
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>오늘의 우량 경매 리포트</title>
+        <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;800&display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --primary: #4F46E5;
+                --primary-light: #818CF8;
+                --bg: #F3F4F6;
+                --card: rgba(255, 255, 255, 0.7);
+                --text: #1F2937;
+                --text-light: #6B7280;
+            }
+            body {
+                font-family: 'Pretendard', -apple-system, sans-serif;
+                background: linear-gradient(135deg, #E0E7FF 0%, #F5F3FF 100%);
+                color: var(--text);
+                margin: 0;
+                padding: 40px 20px;
+                min-height: 100vh;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+            header {
+                text-align: center;
+                margin-bottom: 40px;
+            }
+            h1 {
+                font-size: 2.5rem;
+                font-weight: 800;
+                background: linear-gradient(to right, var(--primary), #9333EA);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin: 0 0 10px 0;
+            }
+            .subtitle {
+                font-size: 1.1rem;
+                color: var(--text-light);
+            }
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 24px;
+            }
+            .card {
+                background: var(--card);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.4);
+                border-radius: 20px;
+                padding: 24px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1);
+            }
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 16px;
+            }
+            .badge {
+                background: var(--primary-light);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 600;
+            }
+            .badge-dday {
+                background: #EF4444;
+            }
+            .case-num {
+                font-weight: 800;
+                font-size: 1.2rem;
+                color: var(--primary);
+                margin: 0 0 4px 0;
+            }
+            .court {
+                font-size: 0.9rem;
+                color: var(--text-light);
+                margin: 0;
+            }
+            h2 {
+                font-size: 1.2rem;
+                margin: 0 0 8px 0;
+                line-height: 1.4;
+                color: #111827;
+            }
+            .info-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px dashed rgba(0,0,0,0.1);
+                font-size: 0.95rem;
+            }
+            .info-row:last-child {
+                border-bottom: none;
+            }
+            .label {
+                color: var(--text-light);
+                font-weight: 600;
+            }
+            .value {
+                font-weight: 600;
+                text-align: right;
+            }
+            .value.price {
+                color: #B91C1C;
+                font-size: 1.1rem;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 50px;
+                color: var(--text-light);
+                font-size: 0.9rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>🔔 우량 경매 추천 리포트</h1>
+                <div class="subtitle">2026년 04월 20일 기준 (200세대 이상 아파트 필터링)</div>
+            </header>
+            <div class="grid">
+    
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울중앙지방법원</p>
+                            <h3 class="case-num">2025타경102727</h3>
+                        </div>
+                        <div class="badge badge-dday">D-1</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 중구 중림동 355 브라운스톤 서울  11층102-1101호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.88m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 3.2k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">11억원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">8억8000만원 <span style="font-size:0.85rem; color:#EF4444;">(↓20%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경9140</h3>
+                        </div>
+                        <div class="badge badge-dday">D-2</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 양천구 신정동 1218-1 일진아이윌아파트 제101동 제6층 제601호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">127.49m² (39평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.2k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">9억9100만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">6억3424만원 <span style="font-size:0.85rem; color:#EF4444;">(↓36%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경9704</h3>
+                        </div>
+                        <div class="badge badge-dday">D-2</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 영등포구 신길동 4938 신길자이 제102동 제11층 제1103호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.94m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 5.8k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">11억원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">8억8000만원 <span style="font-size:0.85rem; color:#EF4444;">(↓20%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경12319</h3>
+                        </div>
+                        <div class="badge badge-dday">D-3</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 양천구 신정동 1306 세양청마루아파트 제105동 제1층 제101호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.98m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 472</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">9억7000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">9억7000만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경10640</h3>
+                        </div>
+                        <div class="badge badge-dday">D-3</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 양천구 목동 904 목동신시가지아파트 제408동 제8층 제805호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">48.69m² (15평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.6k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">18억원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">14억4000만원 <span style="font-size:0.85rem; color:#EF4444;">(↓20%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경12157</h3>
+                        </div>
+                        <div class="badge badge-dday">D-9</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 영등포구 신길동 769-1 한성아파트 제105동 제11층 제1101호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.98m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 664</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">10억6000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">10억6000만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울동부지방법원</p>
+                            <h3 class="case-num">2025타경358</h3>
+                        </div>
+                        <div class="badge badge-dday">D-21</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 송파구 거여동 651 포레나송파 1704동 2층203호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">66.83m² (21평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.7k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">12억1700만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">12억1700만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경13270</h3>
+                        </div>
+                        <div class="badge badge-dday">D-22</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 영등포구 영등포동 649 두산위브 제102동 제3층 제302호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">114.08m² (35평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 2.9k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">11억4000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">9억1200만원 <span style="font-size:0.85rem; color:#EF4444;">(↓20%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울서부지방법원</p>
+                            <h3 class="case-num">2025타경51766</h3>
+                        </div>
+                        <div class="badge badge-dday">D-22</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 용산구 문배동 11-10 용산케이씨씨웰츠타워  34층102동3402호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">97.83m² (30평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 773</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">18억원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">18억원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울동부지방법원</p>
+                            <h3 class="case-num">2025타경50821</h3>
+                        </div>
+                        <div class="badge badge-dday">D-28</div>
+                    </div>
+                    <h2>래미안옥수리버젠</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 성동구 매봉길 15, 112동 16층1604호 (옥수동,래미안옥수리버젠)</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">1511세대</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">134.13m² (41평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 9.1k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">16억200만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">10억2528만원 <span style="font-size:0.85rem; color:#EF4444;">(↓36%)</span></span>
+                    </div>
+                    <div class="badge" style="background:#F59E0B; margin-top:12px;">⚠️ 지분매각, 건물지분</div>
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울동부지방법원</p>
+                            <h3 class="case-num">2025타경51058</h3>
+                        </div>
+                        <div class="badge badge-dday">D-28</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 송파구 잠실동 19 잠실엘스 159동 12층1201호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.8m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.6k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">14억3000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">14억3000만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    <div class="badge" style="background:#F59E0B; margin-top:12px;">⚠️ 지분매각, 건물지분</div>
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울중앙지방법원</p>
+                            <h3 class="case-num">2025타경103724</h3>
+                        </div>
+                        <div class="badge badge-dday">D-29</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 중구 묵정동 35 힐스테이트남산 101동 지1층비111호 외 1개 호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">80.64m² (25평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.3k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">14억1400만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">9억496만원 <span style="font-size:0.85rem; color:#EF4444;">(↓36%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울서부지방법원</p>
+                            <h3 class="case-num">2025타경52304</h3>
+                        </div>
+                        <div class="badge badge-dday">D-36</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 마포구 합정동 473 마포한강2차푸르지오  2층230호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">66.17m² (20평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 807</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">17억3000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">17억3000만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울서부지방법원</p>
+                            <h3 class="case-num">2025타경51191</h3>
+                        </div>
+                        <div class="badge badge-dday">D-36</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 마포구 성산동 597 성산동성아파트 101동 1층106호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.97m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 1.1k</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">9억3500만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">7억4800만원 <span style="font-size:0.85rem; color:#EF4444;">(↓20%)</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울동부지방법원</p>
+                            <h3 class="case-num">2024타경65710</h3>
+                        </div>
+                        <div class="badge badge-dday">D-42</div>
+                    </div>
+                    <h2>가락한신아파트</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 송파구 송파대로 220, 102동 11층1108호 (가락동,가락한신아파트)</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">84.51m² (26평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 366</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">11억9000만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">11억9000만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경764[1]</h3>
+                        </div>
+                        <div class="badge badge-dday">D-50</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 영등포구 양평동3가 46 이앤씨드림타워  제9층 제910호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">131.22m² (40평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 291</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">10억4800만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">10억4800만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <p class="court">서울남부지방법원</p>
+                            <h3 class="case-num">2025타경764[2]</h3>
+                        </div>
+                        <div class="badge badge-dday">D-50</div>
+                    </div>
+                    <h2>아파트명 미상</h2>
+                    <p style="font-size:0.9rem; color:#6B7280; margin-top:0; margin-bottom:16px;">서울특별시 영등포구 양평동3가 90-1 거성파스텔아파트 제103동 제15층 제1502호</p>
+                    
+                    <div class="info-row">
+                        <span class="label">단지 규모</span>
+                        <span class="value">정보없음</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">면적</span>
+                        <span class="value">131.34m² (40평)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">조회수</span>
+                        <span class="value">🔥 216</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">감정가</span>
+                        <span class="value" style="color:#6B7280; text-decoration:line-through;">14억6100만원</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">최저 입찰가</span>
+                        <span class="value price">14억6100만원 <span style="font-size:0.85rem; color:#EF4444;">-0%</span></span>
+                    </div>
+                    
+                </div>
+        
+            </div>
+            <div class="footer">
+                Automated by Antigravity Python Scraper &middot; Data from Madangs &amp; K-Apt
+            </div>
+        </div>
+    </body>
+    </html>
+    
