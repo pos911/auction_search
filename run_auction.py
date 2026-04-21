@@ -22,9 +22,7 @@ def get_household_count_excel(apt_name, addr):
     로컬에 저장된 K-apt 엑셀 파일(20260417_danzi_baseinfo.xlsx)에서 아파트 세대수 추출
     """
     global df_danzi
-    if not apt_name:
-        return None
-        
+    
     try:
         # 최초 1회만 엑셀 로딩 (성능 향상)
         if df_danzi is None:
@@ -43,27 +41,40 @@ def get_household_count_excel(apt_name, addr):
     if df_danzi.empty:
         return None
 
-    # 아파트 이름으로 필터링 (부분 일치 포함)
-    matched = df_danzi[df_danzi['단지명'].str.contains(apt_name, regex=False, na=False)]
+    matched = pd.DataFrame()
     
-    # 매칭된 아파트가 여러 개일 경우 주소로 추가 교차 검증 (옵션)
-    if len(matched) > 1 and addr:
-        # 경매 주소 '서울특별시 은평구 증산동 15' 에서 동 정보(증산동 등) 추출해 비교
-        # 엑셀의 법정동주소 '서울특별시 은평구 증산동 15' 와 매칭
-        best_matches = []
-        for idx, row in matched.iterrows():
-            # 간단히 엑셀 법정동 주소의 핵심 키워드가 경매 주소에 포함되는지 확인
-            # 예: 법정동주소 2번째 단어("은평구", "증산동" 등)
-            addr_parts = str(row['법정동주소']).split()
-            if len(addr_parts) >= 3 and addr_parts[2] in addr:
-                best_matches.append(row)
+    # 1. 아파트 이름으로 필터링 (공백 제거 후 부분 일치 포함)
+    if apt_name:
+        clean_apt_name = apt_name.replace(" ", "")
+        # 엑셀 단지명이 추출된 이름에 포함되거나, 추출된 이름이 단지명에 포함되는 경우 모두 고려
+        matched = df_danzi[df_danzi['단지명'].apply(lambda x: (x.replace(" ","") in clean_apt_name) or (clean_apt_name in x.replace(" ","")) if x else False)]
+    
+    # 2. 이름 매칭이 없거나 너무 많을 경우 주소로 교차 검증
+    if (len(matched) != 1) and addr:
+        norm_addr = addr.replace(" ", "")
         
-        if best_matches:
-            return int(best_matches[0]['세대수'])
+        # 주소 기반 검색 시도
+        # 엑셀의 '법정동주소'가 경매 주소 정보에 포함되어 있는지 확인
+        addr_matches = df_danzi[df_danzi['법정동주소'].apply(lambda x: x.replace(" ", "") in norm_addr if x and len(x.strip()) > 5 else False)]
+        
+        if not addr_matches.empty:
+            # 주소 매칭된 것들 중 이름까지 (공백무시) 일치도가 높은 것이 있다면 우선순위
+            if apt_name:
+                clean_apt_name = apt_name.replace(" ", "")
+                addr_matches['name_score'] = addr_matches['단지명'].apply(lambda x: 1 if (x.replace(" ","") in clean_apt_name) or (clean_apt_name in x.replace(" ","")) else 0)
+                addr_matches = addr_matches.sort_values('name_score', ascending=False)
             
-    # 첫번째 매칭된 단지 세대수 반환
+            return int(addr_matches.iloc[0]['세대수'])
+
+    # 이름으로만 찾은 경우 반환
     if len(matched) > 0:
-        return int(matched.iloc[0]['세대수'])
+        # 매칭이 여러개면 주소 포함 여부로 한 번 더 필터링
+        if len(matched) > 1 and addr:
+            norm_addr = addr.replace(" ", "")
+            matched = matched[matched['법정동주소'].apply(lambda x: x.replace(" ", "") in norm_addr if x else False)]
+        
+        if not matched.empty:
+            return int(matched.iloc[0]['세대수'])
         
     return None
 
@@ -195,15 +206,69 @@ def generate_html_report(df, filename="madangs_report.html"):
                 color: var(--text-light);
                 font-size: 0.9rem;
             }}
+            
+            /* 필터 스타일 */
+            .filter-container {{
+                margin: 30px 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }}
+            .filter-label {{
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: var(--text-light);
+            }}
+            .filter-bar {{
+                background: rgba(255, 255, 255, 0.5);
+                backdrop-filter: blur(5px);
+                padding: 6px;
+                border-radius: 50px;
+                display: flex;
+                gap: 5px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }}
+            .filter-btn {{
+                border: none;
+                background: transparent;
+                padding: 8px 18px;
+                border-radius: 40px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--text-light);
+                cursor: pointer;
+                transition: all 0.2s;
+            }}
+            .filter-btn:hover {{
+                background: rgba(255, 255, 255, 0.8);
+            }}
+            .filter-btn.active {{
+                background: var(--primary);
+                color: white;
+                box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <header>
                 <h1>🔔 우량 경매 추천 리포트</h1>
-                <div class="subtitle">{today} 기준 (200세대 이상 아파트 필터링)</div>
+                <div class="subtitle">{today} 기준 (200세대 이상 추천)</div>
+                
+                <!-- 필터 영역 -->
+                <div class="filter-container">
+                    <div class="filter-label">세대수 필터링</div>
+                    <div class="filter-bar" id="householdFilter">
+                        <button class="filter-btn active" data-min="0">전체</button>
+                        <button class="filter-btn" data-min="200">200세대+</button>
+                        <button class="filter-btn" data-min="500">500세대+</button>
+                        <button class="filter-btn" data-min="1000">1000세대+</button>
+                        <button class="filter-btn" data-min="2000">2000세대+</button>
+                    </div>
+                </div>
             </header>
-            <div class="grid">
+            <div class="grid" id="auctionGrid">
     """
     
     for _, row in df.iterrows():
@@ -222,7 +287,7 @@ def generate_html_report(df, filename="madangs_report.html"):
         vcount = row['view_count'] if pd.notna(row['view_count']) else '-'
         
         html += f"""
-                <div class="card">
+                <div class="card" data-household="{row['household'] if pd.notna(row['household']) else 0}">
                     <div class="card-header">
                         <div>
                             <p class="court">{row.get('court', '')}</p>
@@ -263,6 +328,32 @@ def generate_html_report(df, filename="madangs_report.html"):
                 Automated by Antigravity Python Scraper &middot; Data from Madangs &amp; K-Apt
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const buttons = document.querySelectorAll('.filter-btn');
+                const cards = document.querySelectorAll('.card');
+                
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // 액티브 클래스 교체
+                        buttons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        
+                        const minHousehold = parseInt(btn.dataset.min);
+                        
+                        cards.forEach(card => {
+                            const household = parseInt(card.dataset.household);
+                            if (household >= minHousehold) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
     </body>
     </html>
     """
@@ -315,13 +406,31 @@ def case_num_from_url(u):
     return m.group(1) if m else None
 
 APT_IN_PAREN_RE = re.compile(r"\(([^)]+)\)")
+SPLIT_APT_RE = re.compile(r"(.+\d+[-]?\d*)\s+(.+)")
+
 def apt_from_addr(addr):
     if not isinstance(addr, str): return None
+    
+    # 1. 괄호 안의 이름 추출 (예: 서울특별시 중구 중림동 355 (브라운스톤 서울))
     m = APT_IN_PAREN_RE.search(addr)
     if m:
         parts = [x.strip() for x in m.group(1).split(",") if x.strip()]
         if parts: return parts[-1]
-    if "," in addr: return addr.split(",")[-1].strip()
+    
+    # 2. 콤마 뒤의 이름 추출 (예: 서울특별시 중구 중림동 355, 브라운스톤 서울)
+    if "," in addr:
+        return addr.split(",")[-1].strip()
+    
+    # 3. 주소 번지수 뒤에 공백으로 구분된 이름 추출 
+    # (예: 서울특별시 중구 중림동 355 브라운스톤 서울)
+    m = SPLIT_APT_RE.search(addr)
+    if m:
+        # Group 1: 주소부, Group 2: 아파트명부
+        # 단, Group 2가 너무 짧거나('A동' 등) 하면 아파트명으로 보기 어려울 수 있으나 일단 반환
+        apt_part = m.group(2).strip()
+        if apt_part:
+            return apt_part
+            
     return None
 
 def find_items_container(j):
@@ -424,17 +533,7 @@ def main():
     skipped_count = 0
     for it in items:
         row = normalize_kor(it)
-        
-        # 세대수 기반 필터링 로직
-        if row["household"] is not None:
-            if row["household"] < MIN_HOUSEHOLD:
-                skipped_count += 1
-                continue # 세대수가 MIN_HOUSEHOLD 미만이면 제외
-                
         rows.append(row)
-
-    if skipped_count > 0:
-        print(f"[{skipped_count}건] {MIN_HOUSEHOLD}세대 미만으로 필터링되어 제외되었습니다.")
 
     cols = ["court", "case_num", "use_type", "apt_name", "household", "addr", "area", "eval_price", "low_price", "eval_per", "last_price", "bid_date", "dday", "view_count", "special_right"]
     df = pd.DataFrame(rows, columns=cols)
