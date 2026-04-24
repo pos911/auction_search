@@ -17,6 +17,99 @@ OUT_CSV = "madangs_min_kor.csv"
 MIN_HOUSEHOLD = 200 # 필터링할 최소 세대수 기준.
 df_danzi = None
 
+def safe_text(value):
+    if isinstance(value, str):
+        return value.strip()
+    if pd.isna(value):
+        return ""
+    return str(value).strip()
+
+def compact_text(value):
+    return re.sub(r"\s+", "", safe_text(value))
+
+def clean_apt_name(name):
+    name = safe_text(name)
+    if not name:
+        return ""
+    # 1. Handle (Dong, Name) format if present
+    if "(" in name and ")" in name:
+        m = re.search(r"\(([^)]+)\)", name)
+        if m:
+            parts = m.group(1).split(",")
+            name = parts[-1].strip() if len(parts) > 1 else parts[0].strip()
+
+    # 2. Sequential cleaning of typical building/floor/unit patterns
+    patterns = [
+        r"제?\d+동\s*제?\d+층\s*제?\d+호",
+        r"제?\d+동\s*\d+층\s*\d+호",
+        r"\d+동\s*\d+층\d+호",
+        r"\d+층\d+동\d+호",
+        r"제?\d+동",
+        r"제?\d+층",
+        r"제?\d+호",
+        r"지\d+층", 
+        r"비\d+호",
+        r"외\s*\d+\s*개\s*호.*"
+    ]
+    
+    cleaned = name
+    for p in patterns:
+        cleaned = re.sub(p, "", cleaned)
+    
+    cleaned = re.sub(r"\s+\d+호?$", "", cleaned)
+    return cleaned.strip().strip(",")
+
+def extract_gu_dong_beonji(addr):
+    addr = safe_text(addr)
+    if not addr:
+        return ""
+    dong = ""
+    if "(" in addr:
+        m = re.search(r"\(([^)]+)\)", addr)
+        if m:
+            for p in m.group(1).split(","):
+                p_s = p.strip()
+                if "동" in p_s:
+                    dm = re.search(r"([가-힣\d]+동([가-힣\d]+가)?)", p_s)
+                    if dm:
+                        dong = dm.group(1)
+                        break
+    gu_m = re.search(r"([가-힣]+구)", addr)
+    gu = gu_m.group(1) if gu_m else ""
+    if not dong:
+        dm = re.search(r"([가-힣\d]+동([가-힣\d]+가)?)", addr)
+        dong = dm.group(1) if dm else ""
+    beonji = ""
+    if dong:
+        bm = re.search(re.escape(dong) + r"\s+(\d+[-]?\d*)", addr)
+        if bm: beonji = bm.group(1)
+        else:
+            parts = addr.split(dong)
+            if len(parts) > 1:
+                nm = re.search(r"(\d+[-]?\d*)", parts[1])
+                if nm: beonji = nm.group(1)
+    return f"{gu} {dong} {beonji}".strip()
+
+def score_danzi_match(row, clean_search_name, norm_search_addr):
+    score = 0
+    danzi_name = compact_text(row.get('단지명', ''))
+    legal_addr = compact_text(row.get('법정동주소', ''))
+
+    if clean_search_name and danzi_name:
+        if clean_search_name == danzi_name:
+            score += 6
+        elif clean_search_name in danzi_name or danzi_name in clean_search_name:
+            score += 3
+
+    if norm_search_addr and legal_addr:
+        compact_addr = compact_text(norm_search_addr)
+        if compact_addr == legal_addr:
+            score += 6
+        elif compact_addr in legal_addr or legal_addr in compact_addr:
+            score += 4
+
+    return score
+
 def get_household_count_excel(apt_name, addr):
     """
     로컬에 저장된 K-apt 엑셀 파일(20260417_danzi_baseinfo.xlsx)에서 아파트 세대수 추출
@@ -41,40 +134,41 @@ def get_household_count_excel(apt_name, addr):
     if df_danzi.empty:
         return None
 
+    # 주소 정규화 (구 동 번지)
+    norm_search_addr = extract_gu_dong_beonji(addr)
+    clean_search_name = compact_text(clean_apt_name(apt_name))
+
     matched = pd.DataFrame()
     
-    # 1. 아파트 이름으로 필터링 (공백 제거 후 부분 일치 포함)
-    if apt_name:
-        clean_apt_name = apt_name.replace(" ", "")
-        # 엑셀 단지명이 추출된 이름에 포함되거나, 추출된 이름이 단지명에 포함되는 경우 모두 고려
-        matched = df_danzi[df_danzi['단지명'].apply(lambda x: (x.replace(" ","") in clean_apt_name) or (clean_apt_name in x.replace(" ","")) if x else False)]
-    
-    # 2. 이름 매칭이 없거나 너무 많을 경우 주소로 교차 검증
-    if (len(matched) != 1) and addr:
-        norm_addr = addr.replace(" ", "")
+    # 1. 주소 기반 검색 시도 (가장 정확)
+    if norm_search_addr:
+        simple_search_addr = compact_text(norm_search_addr)
+        matched = df_danzi[
+            df_danzi['법정동주소'].apply(
+                lambda x: simple_search_addr in compact_text(x) if x else False
+            )
+        ]
         
-        # 주소 기반 검색 시도
-        # 엑셀의 '법정동주소'가 경매 주소 정보에 포함되어 있는지 확인
-        addr_matches = df_danzi[df_danzi['법정동주소'].apply(lambda x: x.replace(" ", "") in norm_addr if x and len(x.strip()) > 5 else False)]
-        
-        if not addr_matches.empty:
-            # 주소 매칭된 것들 중 이름까지 (공백무시) 일치도가 높은 것이 있다면 우선순위
-            if apt_name:
-                clean_apt_name = apt_name.replace(" ", "")
-                addr_matches['name_score'] = addr_matches['단지명'].apply(lambda x: 1 if (x.replace(" ","") in clean_apt_name) or (clean_apt_name in x.replace(" ","")) else 0)
-                addr_matches = addr_matches.sort_values('name_score', ascending=False)
-            
-            return int(addr_matches.iloc[0]['세대수'])
+    # 2. 주소 매칭 실패 시 이름으로 시도
+    if matched.empty and clean_search_name:
+        matched = df_danzi[
+            df_danzi['단지명'].apply(
+                lambda x: (
+                    compact_text(x) in clean_search_name or clean_search_name in compact_text(x)
+                ) if x else False
+            )
+        ]
 
-    # 이름으로만 찾은 경우 반환
-    if len(matched) > 0:
-        # 매칭이 여러개면 주소 포함 여부로 한 번 더 필터링
-        if len(matched) > 1 and addr:
-            norm_addr = addr.replace(" ", "")
-            matched = matched[matched['법정동주소'].apply(lambda x: x.replace(" ", "") in norm_addr if x else False)]
-        
-        if not matched.empty:
-            return int(matched.iloc[0]['세대수'])
+    if len(matched) > 1:
+        matched = matched.copy()
+        matched['match_score'] = matched.apply(
+            lambda row: score_danzi_match(row, clean_search_name, norm_search_addr),
+            axis=1,
+        )
+        matched = matched.sort_values(['match_score', '세대수'], ascending=[False, False])
+
+    if not matched.empty:
+        return int(matched.iloc[0]['세대수'])
         
     return None
 
@@ -461,7 +555,7 @@ def normalize_kor(item: dict) -> dict:
         case_num = pick(f, "case_no", "case", "caseno") or case_num_from_url(case_url)
 
     addr     = pick(f, "addr", "address", "road_addr", "load_addr", "location")
-    apt_name = apt_from_addr(addr) or pick(f, "apt_name", "name", "title")
+    apt_name = clean_apt_name(pick(f, "apt_name", "name", "title") or apt_from_addr(addr))
 
     # 평형/면적(m2) 정보 추출
     area_m2 = pick(f, "areas.build.m")
